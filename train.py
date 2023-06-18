@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from utils import *
 from dpcnn import DPCNN
 import argparse
@@ -20,6 +21,7 @@ parser.add_argument('--clip', default=1, type=float, help='Clipping bound')
 parser.add_argument('--eps', default=3, type=float, help='Privacy variable epsilon')
 parser.add_argument('--delta', default=1e-5, type=float, help='Privacy variable delta')
 parser.add_argument('--final-rate', default=0, type=float, help='Percentage of parameters get exited finally.')
+parser.add_argument('--refresh', default=1, type=int, help='Refresh times of sparsification rate per epoch.')
 
 args = parser.parse_args()
 setup = {"device": torch.device("cuda") if torch.cuda.is_available() else "cpu", "dtype": torch.float32}
@@ -57,16 +59,13 @@ def main():
     best_acc = 0
     for e in range(args.epochs):
         # gradual cooling
-        rate = args.final_rate * e / (args.epochs - 1)
-        mask = torch.randperm(num_params, device=setup['device'], dtype=torch.long)[:int(rate * num_params)]
-
-        _, _ = train_with_rs(trainloader=trainloader,
-                             net=net,
-                             optimizer=optimizer,
-                             criterion=criterion,
-                             sigma=sigma,
-                             clip=args.clip,
-                             mask=mask)
+        _, _, mask = train_with_rs(trainloader=trainloader,
+                                   net=net,
+                                   optimizer=optimizer,
+                                   criterion=criterion,
+                                   sigma=sigma,
+                                   clip=args.clip,
+                                   epoch=e)
 
         test_loss, test_acc = test(testloader=testloader,
                                    net=net)
@@ -83,7 +82,7 @@ def main():
               f"Test acc.: {test_acc:.1f}; Best acc.: {best_acc:.1f}")
 
 
-def train_with_rs(trainloader, net, optimizer, criterion, mask, sigma, clip):
+def train_with_rs(trainloader, net, optimizer, criterion, sigma, clip, epoch):
     train_loss_data = 0
     correct = 0
     total = 0
@@ -91,10 +90,22 @@ def train_with_rs(trainloader, net, optimizer, criterion, mask, sigma, clip):
     num_params = 0
     for p in net.parameters():
         num_params += p.numel()
+
     net.train()
     gradient = torch.zeros(size=[num_params]).to(**setup)
     mini_batch = 0
-    for data, targets in trainloader:
+    for iterations, (data, targets) in enumerate(trainloader):
+        # compute current gradual exit rate
+        if iterations % (len(trainloader) // args.refresh) == 0:
+            rate = np.clip(
+                    args.final_rate * (
+                        epoch * args.refresh + iterations // (len(trainloader) // args.refresh)
+                ) / (args.refresh * args.epochs - 1),0, args.final_rate
+            ) if args.epochs >= 0 else 0
+            mask = torch.randperm(
+                num_params, device=setup['device'], dtype=torch.long
+            )[:int(rate * num_params)]
+
         # training
         optimizer.zero_grad()
         data = data.to(**setup)
@@ -145,7 +156,7 @@ def train_with_rs(trainloader, net, optimizer, criterion, mask, sigma, clip):
         correct += predicted.eq(targets).sum().item()
         total += data.shape[0]
 
-    return train_loss_data/len(trainloader), 100. * correct / total
+    return train_loss_data/len(trainloader), 100. * correct / total, mask
 
 
 def test(testloader, net):

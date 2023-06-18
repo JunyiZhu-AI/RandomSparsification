@@ -1,0 +1,6 @@
+backpack-for-pytorch==1.4.0
+opacus==1.0.0
+torch
+torchvision
+packaging>=20.0
+pyparsing>=2.2.1

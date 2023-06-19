@@ -20,8 +20,8 @@ parser.add_argument("--batch_partitions", default=2, help="Partition data of a b
 parser.add_argument('--clip', default=1, type=float, help='Clipping bound')
 parser.add_argument('--eps', default=3, type=float, help='Privacy variable epsilon')
 parser.add_argument('--delta', default=1e-5, type=float, help='Privacy variable delta')
-parser.add_argument('--final-rate', default=0, type=float, help='Percentage of parameters get exited finally.')
-parser.add_argument('--refresh', default=1, type=int, help='Refresh times of sparsification rate per epoch.')
+parser.add_argument('--final-rate', default=0, type=float, help='Sparsification rate at the end of gradual cooling.')
+parser.add_argument('--refresh', default=1, type=int, help='Randomization times of sparsification mask per epoch.')
 
 args = parser.parse_args()
 setup = {"device": torch.device("cuda") if torch.cuda.is_available() else "cpu", "dtype": torch.float32}

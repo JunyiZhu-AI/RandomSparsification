@@ -1,6 +1,6 @@
 ## Improving Differentially Private SGD via Randomly Sparsified Gradients [Accepted by TMLR]
 
-In this codebase, we showcase the enhancement of DP-SGD through the random sparsification of gradients, employing a simple example with [DP-CNN](https://ojs.aaai.org/index.php/AAAI/article/view/17123). The interplay between DP-SGD and Random Sparsification (RS) is peculiar and indicative, as it diverges from observations made in other widely-used SGD schemes.
+In this codebase, we showcase the enhancement of DP-SGD through the random sparsification of gradients, employing a simple example with [DP-CNN](https://ojs.aaai.org/index.php/AAAI/article/view/17123). The interplay between DP-SGD and Random Sparsification (RS) is peculiar and indicative, as it diverges from observations made in other popular SGD schemes.
 
 ### Abstract
 Differentially private stochastic gradient descent (DP-SGD) has been widely adopted in deep learning to provide rigorously defined privacy, which requires gradient clipping to bound the maximum norm of individual gradients and additive isotropic Gaussian noise. With analysis of the convergence rate of DP-SGD in a non-convex setting, we identify that randomly sparsifying gradients before clipping and noisification adjusts a trade-off between internal components of the convergence bound and leads to a smaller upper bound when the noise is dominant. Additionally, our theoretical analysis and empirical evaluations show that the trade-off is not trivial but possibly a unique property of DP-SGD, as either canceling noisification or gradient clipping eliminates the trade-off in the bound. Based on the observation, we propose an efficient and lightweight extension using random sparsification (RS) to strengthen DP-SGD. Applying RS across various DP-SGD frameworks improves performance, while the produced sparse gradients of RS exhibit advantages in reducing communication cost and strengthening privacy against reconstruction attacks, which are also key problems in private machine learning. 
@@ -33,7 +33,7 @@ DP-SGD using hyperparameters given in previous work.
 python train.py --epochs 40 --lr 1 --batchsize 1000 --clip 0.1 --momentum 0.9 --eps 3 --final-rate 0
 ```
 
-In the paper, we consistently perform per-epoch randomization in consideration of the communicational efficiency. Randomizing the sparsification mask multiple times per epoch may further improve the performance of the network.
+In the paper, we consistently perform per-epoch randomization in consideration of the communicational efficiency. However, randomizing the sparsification mask multiple times per epoch may further improve the performance of the network.
 ```bash
 python train.py --epochs 40 --lr 1 --batchsize 1000 --clip 0.1 --momentum 0.9 --eps 3 --final-rate 0.9 --refresh 5
 ```

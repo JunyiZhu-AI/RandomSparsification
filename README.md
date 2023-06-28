@@ -39,12 +39,14 @@ python train.py --epochs 40 --lr 1 --batchsize 1000 --clip 0.1 --momentum 0.9 --
 ```
 ### Citation
 ```sh
-@misc{zhu2022improving,
-      title={Improving Differentially Private SGD via Randomly Sparsified Gradients}, 
-      author={Junyi Zhu and Matthew B. Blaschko},
-      year={2022},
-      eprint={2112.00845},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@article{
+zhu2023improving,
+title={Improving Differentially Private {SGD} via Randomly Sparsified Gradients},
+author={Junyi Zhu and Matthew B. Blaschko},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2023},
+url={https://openreview.net/forum?id=sY35BAiIf4},
+note={}
 }
 ```
